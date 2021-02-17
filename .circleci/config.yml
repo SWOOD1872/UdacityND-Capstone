@@ -1,0 +1,36 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: golang:1.16.0-alpine
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "go.mod" }}
+            - v1-dependencies-
+
+      - run:
+          name: install dependencies
+          command: |
+            make setup
+
+            wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64 &&\
+            chmod +x /bin/hadolint
+
+      - save_cache:
+          paths:
+            - .
+          key: v1-dependencies-{{ checksum "go.mod" }}
+
+      - run:
+          name: lint
+          command: |
+            make lint
+      
+      - run:
+          name: test
+          command: |
+            make test
