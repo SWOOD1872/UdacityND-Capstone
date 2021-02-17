@@ -31,31 +31,51 @@ jobs:
             make lint
       
       - run:
+          name: Compile the Go code to ensure it builds correctly
+          command: |
+            go build -o capstone-server .
+      
+      - run:
           name: Run the Go unit tests
           command: |
             make test
 
       - setup_remote_docker:
           version: 19.03.13
-
+      
       - run:
-          name: Build the Docker image
+          name: Install Docker and it's dependencies
           command: |
-            docker build -t capstone:v1 .
-            docker ls
+            sudo apt update
 
-      - run:
-          name: Tag and push the image to Docker Hub
-          command: |
-            dockerpath=${DH_USERNAME}/capstone:v1
+            sudo apt install apt-transport-https ca-certificates curl software-properties-common
+            curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+            sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
+            sudo apt update
+            apt-cache policy docker-ce
 
-            echo "Docker ID and Image: $dockerpath"
+            sudo apt install docker-ce
 
-            docker login -u $DH_USERNAME -p $DH_PASSWORD
+            sudo systemctl status docker
 
-            docker tag capstone:v1 $dockerpath
+      # - run:
+      #     name: Build the Docker image
+      #     command: |
+      #       docker build -t capstone:v1 .
+      #       docker ls
 
-            docker push $dockerpath
+      # - run:
+      #     name: Tag and push the image to Docker Hub
+      #     command: |
+      #       dockerpath=${DH_USERNAME}/capstone:v1
+
+      #       echo "Docker ID and Image: $dockerpath"
+
+      #       docker login -u $DH_USERNAME -p $DH_PASSWORD
+
+      #       docker tag capstone:v1 $dockerpath
+
+      #       docker push $dockerpath
 
 workflows:
   default:
