@@ -5,48 +5,48 @@ jobs:
       - image: golang:1.16.0
 
     steps:
-      - checkout
+      # - checkout
 
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "go.mod" }}
-            - v1-dependencies-
+      # - restore_cache:
+      #     keys:
+      #       - v1-dependencies-{{ checksum "go.mod" }}
+      #       - v1-dependencies-
 
-      - run:
-          name: Install dependencies for the next build steps
-          command: |
-            make setup
+      # - run:
+      #     name: Install dependencies for the next build steps
+      #     command: |
+      #       make setup
 
-            wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64 &&\
-            chmod +x /bin/hadolint
+      #       wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64 &&\
+      #       chmod +x /bin/hadolint
 
-      - save_cache:
-          paths:
-            - .
-          key: v1-dependencies-{{ checksum "go.mod" }}
+      # - save_cache:
+      #     paths:
+      #       - .
+      #     key: v1-dependencies-{{ checksum "go.mod" }}
 
-      - run:
-          name: Lint the Dockerfile and vet the Go code
-          command: |
-            make lint
+      # - run:
+      #     name: Lint the Dockerfile and vet the Go code
+      #     command: |
+      #       make lint
       
-      - run:
-          name: Compile the Go code to ensure it builds correctly
-          command: |
-            go build -o capstone-server .
+      # - run:
+      #     name: Compile the Go code to ensure it builds correctly
+      #     command: |
+      #       go build -o capstone-server .
       
-      - run:
-          name: Run the Go unit tests
-          command: |
-            make test
+      # - run:
+      #     name: Run the Go unit tests
+      #     command: |
+      #       make test
 
-      - setup_remote_docker:
-          version: 19.03.13
+      # - setup_remote_docker:
+      #     version: 19.03.13
       
       - run:
           name: Install Docker and it's dependencies
           command: |
-            apt install sudo
+            apt-get install sudo
 
             sudo apt update
 
