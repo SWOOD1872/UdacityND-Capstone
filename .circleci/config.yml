@@ -2,7 +2,7 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: golang:1.16.0-alpine
+      - image: golang:1.16.0
 
     steps:
       - checkout
@@ -13,11 +13,8 @@ jobs:
             - v1-dependencies-
 
       - run:
-          name: install dependencies
+          name: Install dependencies for the next build steps
           command: |
-            apk add make --quiet
-            apk add build-base --quiet
-
             make setup
 
             wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64 &&\
@@ -29,14 +26,17 @@ jobs:
           key: v1-dependencies-{{ checksum "go.mod" }}
 
       - run:
-          name: lint
+          name: Lint the Dockerfile and vet the Go code
           command: |
             make lint
       
       - run:
-          name: test
+          name: Run the Go unit tests
           command: |
             make test
+
+      - setup_remote_docker:
+          version: 19.03.13
 
 workflows:
   default:
