@@ -89,7 +89,7 @@ jobs:
 
   build-image:
     docker:
-      - image: ubuntu:20.04
+      - image: python:3.7.3-stretch
       
     steps:
       - run:
