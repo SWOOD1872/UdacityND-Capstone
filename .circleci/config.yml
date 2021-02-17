@@ -46,7 +46,7 @@ jobs:
       - run:
           name: Install Docker and it's dependencies
           command: |
-            apt-get -y install sudo
+            apt install sudo
 
             sudo apt update
 
