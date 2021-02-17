@@ -46,19 +46,29 @@ jobs:
       - run:
           name: Install Docker and it's dependencies
           command: |
-            apt-get update
-            apt-get -y install sudo
+            # apt-get update
+            # apt-get -y install sudo
 
-            sudo apt-get update
+            # sudo apt-get update
 
-            sudo apt-get -y install \
-              apt-transport-https \
-              ca-certificates \
-              curl \
-              gnupg-agent \
-              software-properties-common
+            # sudo apt-get -y install \
+            #   apt-transport-https \
+            #   ca-certificates \
+            #   curl \
+            #   gnupg-agent \
+            #   software-properties-common
             
-            curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+            # curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+
+            echo "*********************************************************"
+            echo "*********************************************************"
+            echo "*********************************************************"
+            echo "*********************************************************"
+            echo $(lsb_release -cs)
+            echo "*********************************************************"
+            echo "*********************************************************"
+            echo "*********************************************************"
+            exit 1
 
             sudo add-apt-repository \
               "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
