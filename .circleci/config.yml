@@ -90,7 +90,13 @@ jobs:
             curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
             sudo mv /tmp/eksctl /usr/local/bin
 
+            echo "AWSCLI VERSION:"
+            aws --version
+
+            echo "KUBECTL VERSION:"
             kubectl version --short --client
+
+            echo "EKSCTL VERSION:"
             eksctl version
 
 workflows:
