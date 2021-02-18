@@ -16,3 +16,6 @@
 
 # Capstone server binary
 capstone-server
+
+# Other
+.DS_Store

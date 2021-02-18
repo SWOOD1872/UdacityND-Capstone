@@ -75,7 +75,7 @@ jobs:
             apt-get update && apt-get -y install sudo
             sudo apt-get update && sudo apt-get -y upgrade
 
-            sudo apt-get -y install curl tar unzip
+            sudo apt-get -y install curl tar unzip awk
 
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip awscliv2.zip
@@ -98,6 +98,29 @@ jobs:
 
             echo "EKSCTL VERSION:"
             eksctl version
+      
+      - run:
+          name: Create an EKS cluster via eksctl
+          command: |
+            CLUSTER_EXISTS=$(aws cloudformation list-exports --query "Exports[?Name=='eksctl-test-cluster::ARN'].Value" \
+              --no-paginate --output text | wc -l | awk '{print $1}')
+
+            if [[ $CLUSTER_EXISTS -gt 0 ]]; then
+              echo "AWS EKS CLUSTER ALREADY EXISTS... SKIPPING CLUSTER CREATION STEP"
+              exit 0
+            fi
+
+            eksctl create cluster \
+              --name gocapstone \
+              --version 1.18 \
+              --region us-west-2 \
+              --nodegroup-name gocapstone-ng \
+              --node-type t3.small \
+              --nodes-min 2 \
+              --nodes-max 4 \
+              --managed
+            
+            kubectl get svc
 
 workflows:
   default:
