@@ -82,7 +82,7 @@ workflows:
       # - build-image:
       #     requires: [build-code]
       - deploy-eks:
-          requires: [build-image]
+          # requires: [build-image]
           filters:
             branches:
               only:
