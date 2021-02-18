@@ -102,6 +102,7 @@ jobs:
       - run:
           name: Create an EKS cluster via eksctl
           command: |
+            export AWS_DEFAULT_REGION="us-west-2"
             CLUSTER_EXISTS=$(aws cloudformation list-exports --query "Exports[?Name=='eksctl-test-cluster::ARN'].Value" \
               --no-paginate --output text | wc -l | awk '{print $1}')
 
