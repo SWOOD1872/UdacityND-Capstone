@@ -65,21 +65,21 @@ jobs:
 
   deploy-eks:
     docker:
-      - image: ubuntu:20.04
+      - image: amazon/aws-cli
 
     steps:
       - checkout
       - run:
           name: Install dependencies
           command: |
-            apt-get update && apt-get -y install sudo
-            sudo apt-get update && sudo apt-get -y upgrade
+            yum -y install sudo
+            sudo yum update
 
-            sudo apt-get -y install curl tar unzip
+            sudo yum -y install curl tar unzip
 
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
+            # curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            # unzip awscliv2.zip
+            # sudo ./aws/install
 
             curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.18.9/2020-11-02/bin/linux/amd64/kubectl
             chmod +x ./kubectl
@@ -102,7 +102,6 @@ jobs:
       - run:
           name: Create an EKS cluster via eksctl
           command: |
-            export AWS_DEFAULT_REGION="us-west-2"
             CLUSTER_EXISTS=$(aws cloudformation list-exports --query "Exports[?Name=='eksctl-test-cluster::ARN'].Value" \
               --no-paginate --output text | wc -l | awk '{print $1}')
 
