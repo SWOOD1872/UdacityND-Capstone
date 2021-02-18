@@ -63,23 +63,24 @@ jobs:
             docker tag capstone:v1 $dockerpath
             docker push $dockerpath
 
-  # TODO: Build out the steps required to deploy to AWS EKS, via eksctl
   deploy-eks:
     docker:
-      - image: TODO
-    
+      - image: ubuntu:20.04
+
     steps:
+      - checkout
       - run:
-          name: TODO
+          name: Install dependencies
           command: |
-            exit 1
+            apt-get update && apt-get -y install sudo
+            sudo apt-get update && sudo apt-get -y upgrade
 
 workflows:
   default:
     jobs:
-      - build-code
-      - build-image:
-          requires: [build-code]
+      # - build-code
+      # - build-image:
+      #     requires: [build-code]
       - deploy-eks:
           requires: [build-image]
           filters:
