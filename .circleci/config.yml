@@ -106,7 +106,7 @@ jobs:
             export AWS_SECRET_ACCESS_KEY=$AWS_CLI_SK
             export AWS_DEFAULT_REGION=$AWS_CLI_DR
 
-            CLUSTER_EXISTS=$(aws cloudformation list-exports --query "Exports[?Name=='eksctl-test-cluster::ARN'].Value" \
+            CLUSTER_EXISTS=$(aws cloudformation list-exports --query "Exports[?Name=='eksctl-gocapstone-cluster::ARN'].Value" \
               --no-paginate --output text | wc -l | awk '{print $1}')
 
             if [[ $CLUSTER_EXISTS -gt 0 ]]; then
@@ -124,7 +124,12 @@ jobs:
               --nodes-max 4 \
               --managed
             
-            kubectl get svc
+            kubectl version
+            kubectl version --short --client
+
+            which kubectl
+
+            ls -l $HOME/bin/kubectl
 
 workflows:
   default:
