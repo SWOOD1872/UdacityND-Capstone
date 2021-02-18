@@ -109,12 +109,9 @@ jobs:
             CLUSTER_EXISTS=$(aws cloudformation list-exports --query "Exports[?Name=='eksctl-gocapstone-cluster::ARN'].Value" \
               --no-paginate --output text | wc -l | awk '{print $1}')
 
-            kubectl version
-            kubectl version --short --client
+            ls -l $HOME/bin
 
-            which kubectl
-
-            ls -l $HOME/bin/kubectl
+            cat ~/.bashrc
 
             if [[ $CLUSTER_EXISTS -gt 0 ]]; then
               echo "AWS EKS CLUSTER ALREADY EXISTS... SKIPPING CLUSTER CREATION STEP"
