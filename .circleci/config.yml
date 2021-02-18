@@ -99,14 +99,17 @@ jobs:
       - run:
           name: Tag and push the image to Docker Hub
           command: |
-            dockerpath=${DH_USERNAME}/capstone:v1
-            echo "Docker ID and Image: $dockerpath"
+            dockerpath="$DH_USERNAME/capstone:v1"
+            echo "PATH BUILT SUCCESSFULLY"
 
-            docker login -u $DH_USERNAME -p $DH_PASSWORD
+            docker login -u "$DH_USERNAME" -p "$DH_PASSWORD"
+            echo "LOGGED IN SUCCESSFULLY"
 
-            # docker tag capstone:v1 $dockerpath
+            docker tag capstone:v1 $dockerpath
+            echo "IMAGE TAGGED SUCCESSFULLY"
 
             docker push $dockerpath
+            echo "UPLOAD SUCCESSFUL"
 
 workflows:
   default:
