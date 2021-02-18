@@ -131,8 +131,7 @@ jobs:
           command: |
             . ~/.bashrc
 
-            aws eks --region region update-kubeconfig --name
-
+            aws eks --region region update-kubeconfig --name gocapstone
             kubectl get svc
 
 workflows:
