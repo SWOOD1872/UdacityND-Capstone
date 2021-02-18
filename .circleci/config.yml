@@ -134,7 +134,7 @@ jobs:
             export AWS_SECRET_ACCESS_KEY=$AWS_CLI_SK
             export AWS_DEFAULT_REGION=$AWS_CLI_DR
 
-            aws eks --region region update-kubeconfig --name gocapstone
+            aws eks --region $AWS_DEFAULT_REGION update-kubeconfig --name gocapstone
             kubectl get svc
 
 workflows:
