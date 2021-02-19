@@ -27,6 +27,9 @@ jobs:
           name: Compile the Go code to ensure it builds correctly
           command: |
             go build -o capstone-server .
+      - store_artifacts:
+          path: ./capstone-server
+          destination: capstone-server
       - run:
           name: Run the Go unit tests
           command: |
@@ -34,7 +37,9 @@ jobs:
 
   build-image:
     docker:
-      - image: python:3.7.3-stretch # I simply couldn't get the Docker steps to work with any other image...
+      # I don't need Python... but I couldn't get the Docker installation and setup to work on any other image...
+      # This is the image I used in a previous project which I know works, so I re-use it here and install whatever else is required
+      - image: python:3.7.3-stretch
     steps:
       - checkout
       - setup_remote_docker:
@@ -66,7 +71,6 @@ jobs:
   deploy-eks:
     docker:
       - image: amazon/aws-cli
-
     steps:
       - checkout
       - run:
@@ -98,12 +102,10 @@ jobs:
 
             echo "EKSCTL VERSION:"
             eksctl version
-      
       - run:
           name: Create an EKS cluster via eksctl
           command: |
             . ~/.bashrc
-
             export AWS_ACCESS_KEY_ID=$AWS_CLI_AK
             export AWS_SECRET_ACCESS_KEY=$AWS_CLI_SK
             export AWS_DEFAULT_REGION=$AWS_CLI_DR
@@ -119,32 +121,40 @@ jobs:
             eksctl create cluster \
               --name gocapstone \
               --version 1.18 \
-              --region us-west-2 \
+              --region $AWS_DEFAULT_REGION \
               --nodegroup-name gocapstone-ng \
               --node-type t3.small \
               --nodes-min 2 \
               --nodes-max 4 \
               --managed
-
       - run:
-          name: Configure kubectl for AWS EKS
+          name: Apply the Kubernetes deployment and service
           command: |
             . ~/.bashrc
             export AWS_ACCESS_KEY_ID=$AWS_CLI_AK
             export AWS_SECRET_ACCESS_KEY=$AWS_CLI_SK
             export AWS_DEFAULT_REGION=$AWS_CLI_DR
 
+            echo "CONFIGURING EKS AND KUBECTL TO USE THE GOCAPSTONE CLUSTER"
             aws eks --region $AWS_DEFAULT_REGION update-kubeconfig --name gocapstone
-            kubectl get svc
+            CONTEXT="$(aws cloudformation list-exports --query "Exports[?Name=='eksctl-gocapstone-cluster::ARN'].Value" \
+             --no-paginate --output text)"
+            if [[ "$(kubectl config current-context)" != "$CONTEXT" ]]; then
+              echo "SETTING THE KUBECTL CONTEXT"
+              kubectl config use-context $CONTEXT
+            fi
+
+            echo "APPLYING THE KUBERNETES CONFIG"
+            kubectl apply -f kubernetes.yml
 
 workflows:
   default:
     jobs:
-      # - build-code
-      # - build-image:
-      #     requires: [build-code]
+      - build-code
+      - build-image:
+          requires: [build-code]
       - deploy-eks:
-          # requires: [build-image]
+          requires: [build-image]
           filters:
             branches:
               only:

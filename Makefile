@@ -10,4 +10,8 @@ test:
 	go clean -testcache ./... && \
 	go test -v -race ./...
 
-all: setup lint test
+deploy:
+	kubectl apply -f kubernetes.yml
+	kubectl get all
+
+all: setup lint test deploy
