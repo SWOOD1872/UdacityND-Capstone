@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Stick&display=swap');
+
 * {
     margin: 0;
     padding: 0;
@@ -6,6 +8,9 @@
 }
 
 body {
+    font-family: 'Stick', sans-serif;
     background-color: rgb(237, 229, 229);
     color: rgb(0, 30, 255);
+    text-align: center;
+    padding: 8em;
 }
