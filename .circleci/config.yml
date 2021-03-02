@@ -146,6 +146,24 @@ jobs:
 
             echo "APPLYING THE KUBERNETES CONFIG"
             kubectl apply -f kubernetes.yml
+            echo "APPLYING A ROLLING RESTART TO THE DEPLOYMENT RESOURCES"
+            kubectl rollout restart deployment/gocapstone-dep
+      - run:
+          name: Print out the Kurbenetes AWS ELB URL
+          command: |
+            . ~/.bashrc
+            export AWS_ACCESS_KEY_ID=$AWS_CLI_AK
+            export AWS_SECRET_ACCESS_KEY=$AWS_CLI_SK
+            export AWS_DEFAULT_REGION=$AWS_CLI_DR
+
+
+            aws eks --region $AWS_DEFAULT_REGION update-kubeconfig --name gocapstone > /dev/null
+            CONTEXT="$(aws cloudformation list-exports --query "Exports[?Name=='eksctl-gocapstone-cluster::ARN'].Value" \
+              --no-paginate --output text)"
+            kubectl config use-context $CONTEXT > /dev/null
+
+            echo "AWS ELB LOAD BALANCER URL:"
+            kubectl get svc | grep "gocapstone-svc" | awk '{print $4}'
 
 workflows:
   default:
