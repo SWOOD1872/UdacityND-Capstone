@@ -27,17 +27,18 @@ jobs:
       - run:
           name: Vet the Go source code
           command: |
-            make vet
+            go vet ./...
       - run:
           name: Compile the Go code to ensure it builds correctly
           command: |
-            go build -o capstone-server .
+            mkdir -p /tmp/artifacts
+            go build -o /tmp/artifacts/capstone-server .
             if [[ $? -ne 0 ]]; then
               echo "GO COMPILATION WAS UNSUCCESSFUL"
               exit 1
             fi
       - store_artifacts:
-          path: ./capstone-server
+          path: /tmp/artifacts/capstone-server
           destination: capstone-server
       - run:
           name: Run the Go unit tests
