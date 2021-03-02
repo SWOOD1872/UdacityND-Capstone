@@ -20,7 +20,7 @@ jobs:
       #       - .
       #     key: v1-dependencies-{{ checksum "go.mod" }}
       - run:
-          name: Lint the Dockerfile and vet the Go code
+          name: Lint the Dockerfile and Go source code
           command: |
             wget -O- -nv https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v1.37.1
             ./bin/golangci-lint run ./...
@@ -170,7 +170,8 @@ jobs:
             kubectl config use-context $CONTEXT > /dev/null
 
             mkdir -p /tmp/artifacts
-            kubectl get svc | grep "gocapstone-svc" | awk '{print $4}' > /tmp/artifacts/url.txt
+            lb="$(kubectl get svc | grep "gocapstone-svc" | awk '{print $4}'):8080" && \
+              echo $lb > /tmp/artifacts/url.txt
             kubectl describe all > /tmp/artifacts/describe.txt
       - store_artifacts:
           path: /tmp/artifacts
