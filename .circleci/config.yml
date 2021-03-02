@@ -13,7 +13,7 @@ jobs:
           name: Install dependencies for the next build steps
           command: |
             make setup
-            wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64 &&\
+            wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64 && \
             chmod +x /bin/hadolint
       - save_cache:
           paths:
@@ -22,11 +22,20 @@ jobs:
       - run:
           name: Lint the Dockerfile and vet the Go code
           command: |
+            wget -O- -nv https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v1.37.1
             make lint
+      - run:
+          name: Vet the Go source code
+          command: |
+            make vet
       - run:
           name: Compile the Go code to ensure it builds correctly
           command: |
             go build -o capstone-server .
+            if [[ $? -ne 0 ]]; then
+              echo "GO COMPILATION WAS UNSUCCESSFUL"
+              exit 1
+            fi
       - store_artifacts:
           path: ./capstone-server
           destination: capstone-server
@@ -39,6 +48,7 @@ jobs:
     docker:
       # I don't need Python... but I couldn't get the Docker installation and setup to work on any other image...
       # This is the image I used in a previous project which I know works, so I re-use it here and install whatever else is required
+      # If I was to improve this pipeline... removing this python image would be top of my list...
       - image: python:3.7.3-stretch
     steps:
       - checkout
@@ -165,6 +175,7 @@ jobs:
             echo "AWS ELB LOAD BALANCER URL:"
             mkdir -p /tmp/artifacts
             kubectl get svc | grep "gocapstone-svc" | awk '{print $4}' > /tmp/artifacts/lburl.txt
+            kubectl get nodes > /tmp/artifacts/nodes.txt
       - store_artifacts:
           path: /tmp/artifacts/lburl.txt
           destination: lburl.txt
@@ -173,11 +184,11 @@ workflows:
   default:
     jobs:
       - build-code
-      - build-image:
-          requires: [build-code]
-      - deploy-eks:
-          requires: [build-image]
-          filters:
-            branches:
-              only:
-                - main
+      # - build-image:
+      #     requires: [build-code]
+      # - deploy-eks:
+      #     requires: [build-image]
+      #     filters:
+      #       branches:
+      #         only:
+      #           - main

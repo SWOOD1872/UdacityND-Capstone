@@ -4,6 +4,9 @@ setup:
 
 lint:
 	hadolint Dockerfile
+    golangci-lint run ./...
+
+vet:
 	go vet ./...
 
 test:
