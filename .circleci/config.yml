@@ -154,8 +154,6 @@ jobs:
 
             echo "APPLYING THE KUBERNETES CONFIG"
             kubectl apply -f kubernetes.yml
-            echo "APPLYING A ROLLING RESTART TO THE DEPLOYMENT RESOURCES"
-            kubectl rollout restart deployment/gocapstone-dep
       - run:
           name: Store K8s info as build artifacts
           command: |
