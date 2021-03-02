@@ -4,18 +4,17 @@ import (
 	"context"
 	"embed"
 	"flag"
+	"io"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
 
-	_ "embed"
-
 	"github.com/gorilla/mux"
 )
 
-//go:embed static/*
+//go:embed static
 var static embed.FS
 
 // CustomFS is a custom filesystem to prevent directory listings
@@ -46,7 +45,7 @@ func (cfs CustomFS) Open(p string) (http.File, error) {
 var address string
 
 func init() {
-	flag.StringVar(&address, "address", "0.0.0.0:8080",
+	flag.StringVar(&address, "address", ":8080",
 		"address used to run the server including port number, typically in the form ':<port>'")
 }
 
@@ -54,12 +53,21 @@ func main() {
 	// Parse any flags defined in the init() function
 	flag.Parse()
 
+	logfile, err := os.OpenFile("server.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatalf("error opening file: %v", err)
+	}
+	defer logfile.Close()
+
+	log.SetOutput(logfile)
+
 	// New ServeMux (router)
 	r := mux.NewRouter()
 
 	// File server with a custom filesystem to serve static assets
 	fs := http.FileServer(CustomFS{http.FS(static)})
-	r.PathPrefix("/assets/").Handler(http.StripPrefix("/assets/", fs))
+	r.PathPrefix("/assets/").Handler(http.StripPrefix("/assets/", fs)).Methods("GET")
+	// r.Handle("/assets/", http.StripPrefix("/assets/", fs))
 
 	// Root handler
 	r.HandleFunc("/", indexHandler).Methods("GET")
@@ -74,7 +82,10 @@ func main() {
 	go func() {
 		// Ignoring the error here as it's a very basic web server
 		// In a real production environment, the error should be handled properly
-		_ = server.ListenAndServe()
+		err := server.ListenAndServe()
+		if err != nil {
+			log.Fatal(err)
+		}
 	}()
 
 	// Channel to receive and handle interrupt and kill signals
@@ -94,6 +105,9 @@ func main() {
 
 // default/root handler which serves the index page and associated styling
 func indexHandler(w http.ResponseWriter, r *http.Request) {
+	f, _ := static.Open("static/index.html")
+	defer f.Close()
+
 	w.Header().Set("Content-Type", "text/html")
-	http.ServeFile(w, r, "./static/index.html")
+	_, _ = io.Copy(w, f)
 }
