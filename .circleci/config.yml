@@ -23,6 +23,7 @@ jobs:
           name: Lint the Dockerfile and vet the Go code
           command: |
             wget -O- -nv https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v1.37.1
+            ./bin/golangci-lint run ./...
             make lint
       - run:
           name: Vet the Go source code
