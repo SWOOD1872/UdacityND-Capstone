@@ -58,7 +58,7 @@ jobs:
           version: 19.03.13
           docker_layer_caching: false
       - run:
-          name: Install Docker and it's dependencies
+          name: Install Docker and its dependencies
           command: |
             apt-get update && apt-get -y install sudo
             sudo apt-get update
@@ -136,7 +136,7 @@ jobs:
               --nodes-max 4 \
               --managed
       - run:
-          name: Apply the Kubernetes deployment and service
+          name: Apply the Kubernetes deployment and service as a rolling update
           command: |
             . ~/.bashrc
             export AWS_ACCESS_KEY_ID=$AWS_CLI_AK
@@ -157,7 +157,7 @@ jobs:
             echo "APPLYING A ROLLING RESTART TO THE DEPLOYMENT RESOURCES"
             kubectl rollout restart deployment/gocapstone-dep
       - run:
-          name: Print out the Kurbenetes AWS ELB URL
+          name: Store K8s info as build artifacts
           command: |
             . ~/.bashrc
             export AWS_ACCESS_KEY_ID=$AWS_CLI_AK
