@@ -91,11 +91,7 @@ jobs:
             yum -y install sudo
             sudo yum update
 
-            sudo yum -y install curl tar unzip
-
-            # curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            # unzip awscliv2.zip
-            # sudo ./aws/install
+            sudo yum -y install curl tar
 
             curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.18.9/2020-11-02/bin/linux/amd64/kubectl
             chmod +x ./kubectl
@@ -168,29 +164,26 @@ jobs:
             export AWS_SECRET_ACCESS_KEY=$AWS_CLI_SK
             export AWS_DEFAULT_REGION=$AWS_CLI_DR
 
-
             aws eks --region $AWS_DEFAULT_REGION update-kubeconfig --name gocapstone > /dev/null
             CONTEXT="$(aws cloudformation list-exports --query "Exports[?Name=='eksctl-gocapstone-cluster::ARN'].Value" \
               --no-paginate --output text)"
             kubectl config use-context $CONTEXT > /dev/null
 
-            echo "AWS ELB LOAD BALANCER URL:"
             mkdir -p /tmp/artifacts
-            kubectl get svc | grep "gocapstone-svc" | awk '{print $4}' > /tmp/artifacts/lburl.txt
-            kubectl get nodes > /tmp/artifacts/nodes.txt
+            kubectl get svc | grep "gocapstone-svc" | awk '{print $4}' > /tmp/artifacts/url.txt
+            kubectl describe all > /tmp/artifacts/describe.txt
       - store_artifacts:
-          path: /tmp/artifacts/lburl.txt
-          destination: lburl.txt
+          path: /tmp/artifacts
 
 workflows:
   default:
     jobs:
       - build-code
-      # - build-image:
-      #     requires: [build-code]
-      # - deploy-eks:
-      #     requires: [build-image]
-      #     filters:
-      #       branches:
-      #         only:
-      #           - main
+      - build-image:
+          requires: [build-code]
+      - deploy-eks:
+          requires: [build-image]
+          filters:
+            branches:
+              only:
+                - main
