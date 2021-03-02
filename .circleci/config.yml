@@ -163,6 +163,7 @@ jobs:
             kubectl config use-context $CONTEXT > /dev/null
 
             echo "AWS ELB LOAD BALANCER URL:"
+            mkdir -p /tmp/artifacts
             kubectl get svc | grep "gocapstone-svc" | awk '{print $4}' > /tmp/artifacts/lburl.txt
       - store_artifacts:
           path: /tmp/artifacts/lburl.txt
