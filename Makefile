@@ -17,4 +17,4 @@ deploy:
 	kubectl apply -f kubernetes.yml
 	kubectl get all
 
-all: setup lint test deploy
+all: setup lint vet test deploy
